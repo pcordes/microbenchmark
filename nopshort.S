@@ -1,0 +1,14 @@
+	.text
+	.p2align 6
+	.globl	nopshort
+	.type	nopshort, @function
+nopshort:
+	.rept 4096
+	.byte 0x0f,0x1f,0x40,0x00
+	.rept NOP_REPEAT
+	.byte 0x66,0x2e,0x0f,0x1f,0x84,0x00,0x00,0x00,0x00,0x00
+	.endr
+	.endr
+	ret
+	.size	nopshort, .-nopshort
+	.section	.note.GNU-stack,"",@progbits
