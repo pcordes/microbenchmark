@@ -7,8 +7,6 @@ EXE=test
 
 OBJS=test.o compare.o compare-nop.o
 
-compare-nop.o: CFLAGS += -fcf-protection
-
 all: $(EXE)
 	./$(EXE)
 
