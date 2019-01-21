@@ -2,17 +2,16 @@
 #include <stdlib.h>
 #include <x86intrin.h>
 
-extern int foo (int);
-extern int foo_no_table (int);
-
-int global;
+extern double int128_double_libgcc2 (__int128);
+extern double int128_double_soft_fp (__int128);
 
 #define LOOP 30000
 
 int
 main (int argc, char **argv)
 {
-  int i, loop, total;
+  int i, loop;
+  double total;
   unsigned long long start, end;
   unsigned long long diff1, diff2;
 
@@ -24,27 +23,25 @@ main (int argc, char **argv)
 
   printf ("%d loops:\n", loop);
 
-  global = 20;
   total = 0;
   start = __rdtscp (&i);
   for (i = 0; i < loop; i++)
-    total += foo_no_table (i);
+    total += int128_double_libgcc2 ((__int128) i);
   end = __rdtscp (&i);
   diff1 = end - start;
 
-  printf ("global: %d, total: %d\n", global, total);
-  printf ("no jump table: %lld\n", diff1);
+  printf ("total  : %.10e\n", total);
+  printf ("libgcc2: %lld\n", diff1);
 
-  global = 20;
   total = 0;
   start = __rdtscp (&i);
   for (i = 0; i < loop; i++)
-    total += foo (i);
+    total += int128_double_soft_fp ((__int128) i);
   end = __rdtscp (&i);
   diff2 = end - start;
 
-  printf ("global: %d, total: %d\n", global, total);
-  printf ("jump table   : %lld (%.2f%%)\n",
+  printf ("total  : %.10e\n", total);
+  printf ("soft-fp: %lld (%.2f%%)\n",
 	  diff2, 100.0f * diff2 / diff1);
 
   return 0;

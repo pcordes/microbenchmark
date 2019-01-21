@@ -1,13 +1,11 @@
 CC=gcc
 CFLAGS=-g -I.
-CFLAGS+=-O2 -mindirect-branch=thunk
+CFLAGS+=-O2
 ASFLAGS=-g
 
 EXE=test
 
-OBJS=test.o switch-no-table.o switch.o
-
-switch-no-table.o switch-no-table.s: CFLAGS += -fno-jump-tables
+OBJS=test.o libgcc2.o soft-fp.o floattidf-libgcc2.o floattidf-soft-fp.o
 
 all: $(EXE)
 	./$(EXE)
