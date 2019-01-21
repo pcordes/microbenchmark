@@ -5,7 +5,7 @@ ASFLAGS=-g
 
 EXE=test
 
-OBJS=test.o libgcc2.o soft-fp.o floattidf-libgcc2.o floattidf-soft-fp.o
+OBJS=test.o libgcc2.o soft-fp.o floattixf-libgcc2.o floattixf-soft-fp.o
 
 all: $(EXE)
 	./$(EXE)
