@@ -5,7 +5,7 @@
 extern double int128_double_libgcc2 (__int128);
 extern double int128_double_soft_fp (__int128);
 
-#define LOOP 30000
+#define LOOP 300000000
 
 int
 main (int argc, char **argv)
