@@ -1,12 +1,16 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <x86intrin.h>
 
-extern int testb (int, int, int, int);
-extern int testw (int, int, int, int);
-extern int testl (int, int, int, int);
-extern int testq (int, int, int, int);
+extern void avx (int, __m128);
+extern void sse (int, __m128);
+extern void avx_clear (int, __m128);
+extern void sse_clear (int, __m128);
 
-#define LOOP 3000
+__m128 *xmm;
+float f;
+
+#define LOOP 3000000
 
 int
 main ()
@@ -14,38 +18,45 @@ main ()
   int i;
   unsigned long long start, end;
   unsigned long long diff;
+  unsigned int aux;
 
-  start = __rdtsc ();
+  xmm = (__m128 *) malloc (LOOP * sizeof (*xmm));
   for (i = 0; i < LOOP; i++)
-    testb (i, i - 30, i + 4, i - 3);
-  end = __rdtsc ();
+    xmm[i] = _mm_set1_ps (i + 1.234567);
+
+  start = __rdtscp (&aux);
+  for (i = 0; i < LOOP; i++)
+    sse (i + 1, xmm[i]);
+  end = __rdtscp (&aux);
   diff = end - start;
 
-  printf ("testb  : %lld\n", diff);
+  printf ("sse      : %lld\n", diff);
 
-  start = __rdtsc ();
+  start = __rdtscp (&aux);
   for (i = 0; i < LOOP; i++)
-    testw (i, i - 30, i + 4, i - 3);
-  end = __rdtsc ();
+    sse_clear (i + 1, xmm[i]);
+  end = __rdtscp (&aux);
   diff = end - start;
 
-  printf ("testw  : %lld\n", diff);
+  printf ("sse_clear: %lld\n", diff);
 
-  start = __rdtsc ();
+  start = __rdtscp (&aux);
   for (i = 0; i < LOOP; i++)
-    testl (i, i - 30, i + 4, i - 3);
-  end = __rdtsc ();
+    avx (i + 1, xmm[i]);
+  end = __rdtscp (&aux);
   diff = end - start;
 
-  printf ("testl  : %lld\n", diff);
+  printf ("avx      : %lld\n", diff);
 
-  start = __rdtsc ();
+  start = __rdtscp (&aux);
   for (i = 0; i < LOOP; i++)
-    testq (i, i - 30, i + 4, i - 3);
-  end = __rdtsc ();
+    avx_clear (i + 1, xmm[i]);
+  end = __rdtscp (&aux);
   diff = end - start;
 
-  printf ("testq  : %lld\n", diff);
+  printf ("avx_clear: %lld\n", diff);
+
+  free (xmm);
 
   return 0;
 }

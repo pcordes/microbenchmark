@@ -4,7 +4,7 @@ ASFLAGS=-g
 
 EXE=test
 
-OBJS=test.o testb.o testw.o testl.o testq.o
+OBJS=test.o sse.o sse-clear.o avx.o avx-clear.o
 
 all: $(EXE)
 	./$(EXE)
