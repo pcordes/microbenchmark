@@ -2,12 +2,14 @@
 #include <stdlib.h>
 #include <x86intrin.h>
 
-extern void avx (int, __m128);
-extern void sse (int, __m128);
-extern void avx_clear (int, __m128);
-extern void sse_clear (int, __m128);
+extern void avx (__m128d, __m128d);
+extern void avx2 (__m128d, __m128d);
+extern void sse (__m128d, __m128d);
+extern void avx_clear (__m128d, __m128d);
+extern void sse_clear (__m128d, __m128d);
 
-__m128 *xmm;
+__m128d *xmm0;
+__m128d *xmm1;
 float f;
 
 #define LOOP 3000000
@@ -20,13 +22,17 @@ main ()
   unsigned long long diff;
   unsigned int aux;
 
-  xmm = (__m128 *) malloc (LOOP * sizeof (*xmm));
+  xmm0 = (__m128d *) malloc (LOOP * sizeof (*xmm0));
+  xmm1 = (__m128d *) malloc (LOOP * sizeof (*xmm1));
   for (i = 0; i < LOOP; i++)
-    xmm[i] = _mm_set1_ps (i + 1.234567);
+    {
+      xmm0[i] = _mm_set1_pd (i + 1.23456);
+      xmm1[i] = _mm_set1_pd (i + i + 3.7891);
+    }
 
   start = __rdtscp (&aux);
   for (i = 0; i < LOOP; i++)
-    sse (i + 1, xmm[i]);
+    sse (xmm0[i], xmm1[i]);
   end = __rdtscp (&aux);
   diff = end - start;
 
@@ -34,7 +40,7 @@ main ()
 
   start = __rdtscp (&aux);
   for (i = 0; i < LOOP; i++)
-    sse_clear (i + 1, xmm[i]);
+    sse_clear (xmm0[i], xmm1[i]);
   end = __rdtscp (&aux);
   diff = end - start;
 
@@ -42,7 +48,7 @@ main ()
 
   start = __rdtscp (&aux);
   for (i = 0; i < LOOP; i++)
-    avx (i + 1, xmm[i]);
+    avx (xmm0[i], xmm1[i]);
   end = __rdtscp (&aux);
   diff = end - start;
 
@@ -50,13 +56,21 @@ main ()
 
   start = __rdtscp (&aux);
   for (i = 0; i < LOOP; i++)
-    avx_clear (i + 1, xmm[i]);
+    avx2 (xmm0[i], xmm1[i]);
+  end = __rdtscp (&aux);
+  diff = end - start;
+
+  printf ("avx2     : %lld\n", diff);
+
+  start = __rdtscp (&aux);
+  for (i = 0; i < LOOP; i++)
+    avx_clear (xmm0[i], xmm1[i]);
   end = __rdtscp (&aux);
   diff = end - start;
 
   printf ("avx_clear: %lld\n", diff);
 
-  free (xmm);
-
+  free (xmm0);
+  free (xmm1);
   return 0;
 }
