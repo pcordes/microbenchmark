@@ -4,5 +4,6 @@
 	.type	avx2, @function
 avx2:
 	vcvtsd2ss	%xmm1, %xmm1, %xmm0
+        ret
 	.size	avx2, .-avx2
 	.section	.note.GNU-stack,"",@progbits
